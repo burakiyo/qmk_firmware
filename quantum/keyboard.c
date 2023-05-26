@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "sendchar.h"
 #include "eeconfig.h"
 #include "action_layer.h"
+#include "apidef.h"
 #ifdef BACKLIGHT_ENABLE
 #    include "backlight.h"
 #endif
@@ -262,13 +263,13 @@ void keyboard_setup(void) {
  *
  * FIXME: needs doc
  */
-__attribute__((weak)) bool is_keyboard_master(void) { return true; }
+__attribute__((weak)) bool is_keyboard_master(void) { return (BMPAPI->app.get_config()->mode == SPLIT_MASTER); }
 
 /** \brief is_keyboard_left
  *
  * FIXME: needs doc
  */
-__attribute__((weak)) bool is_keyboard_left(void) { return true; }
+__attribute__((weak)) bool is_keyboard_left(void) { return (BMPAPI->app.get_config()->matrix.is_left_hand); }
 
 #endif
 

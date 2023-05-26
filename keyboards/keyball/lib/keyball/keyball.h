@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "bmp_custom_keycode.h"
 #pragma once
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifndef KEYBALL_SCROLL_DIV_DEFAULT
-#    define KEYBALL_SCROLL_DIV_DEFAULT 4 // 4: 1/8 (1/2^(n-1))
+#    define KEYBALL_SCROLL_DIV_DEFAULT 5 // 4: 1/8 (1/2^(n-1))
 #endif
 
 #ifndef KEYBALL_REPORTMOUSE_INTERVAL
@@ -37,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifndef KEYBALL_SCROLLSNAP_ENABLE
-#    define KEYBALL_SCROLLSNAP_ENABLE 1
+#    define KEYBALL_SCROLLSNAP_ENABLE 0
 #endif
 
 #ifndef KEYBALL_SCROLLSNAP_RESET_TIMER
@@ -70,8 +71,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //////////////////////////////////////////////////////////////////////////////
 // Types
 
-enum keyball_keycodes {
-    KBC_RST = SAFE_RANGE, // Keyball configuration: reset to default
+enum custom_keycodes {
+    KBC_RST = BMP_SAFE_RANGE, // Keyball configuration: reset to default
     KBC_SAVE,             // Keyball configuration: save to EEPROM
 
     CPI_I100, // CPI +100 CPI
@@ -85,6 +86,10 @@ enum keyball_keycodes {
     SCRL_MO,  // Momentary scroll mode
     SCRL_DVI, // Increment scroll divider
     SCRL_DVD, // Decrement scroll divider
+
+    MY_MS_BTN1,
+    MY_MS_BTN2,
+    MY_MS_BTN3,
 
     KEYBALL_SAFE_RANGE,
 };

@@ -17,7 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
-
+#include "bmp.h"
+#include "bmp_custom_keycode.h"
+#include "pointing_device.h"
+#include "keycode_str_converter.h"
+#include "drivers/pmw3360/pmw3360.h"
+#include "lib/keyball/keyball.h"
 #include "quantum.h"
 
 // clang-format off
@@ -52,6 +57,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 // clang-format on
+
+uint32_t keymaps_len()
+{
+  return sizeof(keymaps) / sizeof(uint16_t);
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     // Auto enable scroll mode when the highest layer is 3

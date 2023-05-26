@@ -18,14 +18,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <stdint.h>
-#include "spi_master.h"
+// #include "spi_master.h"
 
 //////////////////////////////////////////////////////////////////////////////
 // Configurations
 
 #ifndef PMW3360_NCS_PIN
-#    define PMW3360_NCS_PIN B6
+#    define PMW3360_NCS_PIN 13
 #endif
+
+#ifndef PMW3360_MOSI
+#    define PMW3360_MOSI 14
+#endif
+
+#ifndef PMW3360_MISO
+#    define PMW3360_MISO 15
+#endif
+
+#ifndef PMW3360_SCLK
+#    define PMW3360_SCLK 16
+#endif
+
+#define PMW3360_SPI_MODE 3
+#define PMW3360_SPI_DIVISOR (F_CPU / PMW3360_CLOCKS)
+#define PMW3360_CLOCKS 2000000
 
 /// DEBUG_PMW3360_SCAN_RATE enables scan performance counter.
 /// It records scan count in a last second and enables pmw3360_scan_rate_get().
@@ -133,16 +149,6 @@ enum {
 //////////////////////////////////////////////////////////////////////////////
 // SPI operations
 
-bool pmw3360_spi_start(void);
+void spi_start();
 
-void inline pmw3360_spi_stop(void) {
-    spi_stop();
-}
-
-spi_status_t inline pmw3360_spi_write(uint8_t data) {
-    return spi_write(data);
-}
-
-spi_status_t inline pmw3360_spi_read(void) {
-    return spi_read();
-}
+void spi_stop();

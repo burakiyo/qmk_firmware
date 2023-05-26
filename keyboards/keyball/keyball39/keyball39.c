@@ -15,15 +15,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+// #include QMK_KEYBOARD_H
+#include "keyball39.h"
+#include <string.h>
 
-#include QMK_KEYBOARD_H
+void keyboard_post_init_user()
+{
+    debug_enable = false;
+}
 
-#include "lib/keyball/keyball.h"
+void create_user_file()
+{
+  static const char qmk_configurator[] = "<meta http-equiv=\"refresh\" content=\"0;URL=\'https://sekigon-gonnoc.github.io/qmk_configurator\'\"/>";
+  BMPAPI->usb.create_file("MAP_EDITHTM", (uint8_t*)qmk_configurator, strlen(qmk_configurator));
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-matrix_row_t matrix_mask[MATRIX_ROWS] = {
+matrix_row_t matrix_mask[MATRIX_ROWS_DEFAULT] = {
     0b00011111,
     0b00011111,
     0b00011111,

@@ -15,6 +15,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "bmp.h"
+#include "keycode_str_converter.h"
+#include "pointing_device.h"
 #include "quantum.h"
 #ifdef SPLIT_KEYBOARD
 #    include "transactions.h"
@@ -22,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "keyball.h"
 #include "drivers/pmw3360/pmw3360.h"
+#include "pointing_device.h"
+
+report_mouse_t mouse_report;
 
 const uint8_t CPI_DEFAULT    = KEYBALL_CPI_DEFAULT / 100;
 const uint8_t CPI_MAX        = pmw3360_MAXCPI + 1;
@@ -118,7 +124,7 @@ void keyboard_pre_init_kb(void) {
 }
 #endif
 
-void pointing_device_driver_init(void) {
+void pointing_device_init(void) {
 #if KEYBALL_MODEL != 46
     keyball.this_have_ball = pmw3360_init();
 #endif
@@ -165,8 +171,8 @@ static void motion_to_mouse_scroll(keyball_motion_t *m, report_mouse_t *r, bool 
 
     // apply to mouse report.
 #if KEYBALL_MODEL == 61 || KEYBALL_MODEL == 39 || KEYBALL_MODEL == 147 || KEYBALL_MODEL == 44
-    r->h = clip2int8(y);
-    r->v = -clip2int8(x);
+    r->h = -clip2int8(y);
+    r->v = clip2int8(x);
     if (is_left) {
         r->h = -r->h;
         r->v = -r->v;
@@ -242,6 +248,13 @@ report_mouse_t pointing_device_driver_get_report(report_mouse_t rep) {
         keyball.last_mouse = rep;
     }
     return rep;
+}
+
+void pointing_device_task()
+{
+    mouse_report = pointing_device_driver_get_report(mouse_report);
+    pointing_device_set_report(mouse_report);
+    pointing_device_send();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -481,12 +494,21 @@ void housekeeping_task_kb(void) {
 }
 #endif
 
-bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+const key_string_map_t custom_keys_user =
+{
+    .start_kc = KBC_RST,
+    .end_kc = KEYBALL_SAFE_RANGE,
+    .key_strings = "KBC_RST\0KBC_SAVE\0CPI_I100\0CPI_D100\0CPI_I1K\0CPI_D1K\0SCRL_TO\0SCRL_MO\0SCRL_DVI\0SCRL_DVD\0MY_MS_BTN1\0MY_MS_BTN2\0MY_MS_BTN3\0KEYBALL_SAFE_RANGE\0"
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // store last keycode, row, and col for OLED
     keyball.last_kc  = keycode;
     keyball.last_pos = record->event.key;
 
-    if (!process_record_user(keycode, record)) {
+    bool continue_process = process_record_user_bmp(keycode, record);
+    if (continue_process == false)
+    {
         return false;
     }
 
@@ -510,6 +532,30 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
         case SCRL_MO:
             keyball_set_scroll_mode(record->event.pressed);
             return false;
+
+        case MY_MS_BTN1:
+        case MY_MS_BTN2:
+        case MY_MS_BTN3:
+        {
+            // マウスの状態取得とキーコード取得
+            // btnのbitmapを考慮して、BTN4以降を追加する場合はBTN3と連続になるように規定要。
+            mouse_report = pointing_device_get_report();
+            uint8_t btn = 1 << (keycode - MY_MS_BTN1);
+
+            // ドラッグ&ドロップ対応用
+            if (record->event.pressed)
+            {
+                mouse_report.buttons |= btn;
+            }
+            else
+            {
+                mouse_report.buttons &= ~btn;
+            }
+
+            pointing_device_set_report(mouse_report);
+            pointing_device_send();
+            return false;
+        }
     }
 
     // process events which works on pressed only.
